@@ -1,9 +1,9 @@
 <?php
 
-use Crab\Engine\Providers\ConfigServiceProvider;
-use Crab\Engine\Providers\EventsServiceProvider;
-use Crab\Engine\Providers\RoutingServiceProvider;
-use Crab\Engine\Providers\HttpServiceProvider;
+use Crab\Engine\Config\ConfigServiceProvider;
+use Crab\Engine\Events\EventsServiceProvider;
+use Crab\Engine\Routing\RoutingServiceProvider;
+use Crab\Engine\Http\HttpServiceProvider;
 use App\Providers\AppServiceProvider;
 
 return [
