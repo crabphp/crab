@@ -1,20 +1,20 @@
 <?php
 
 use Crab\Routing\Router;
-use Crab\Http\Request;
-use Crab\Http\Response;
+use Crab\Http\ResponseFactory;
+use Psr\Http\Message\ServerRequestInterface;
 
 return function (Router $router) {
     $router->get('/', function () {
-        return Response::text('CrabPHP OK');
+        return ResponseFactory::text('CrabPHP OK');
     });
 
     $router->get('/hello', function () {
         return 'Hello CrabPHP';
     });
 
-    $router->get('/echo', function (Request $request) {
-        $q = $request->query('q', '');
+    $router->get('/echo', function (ServerRequestInterface $request) {
+        $q = $request->getQueryParams()['q'] ?? '';
         return $q !== '' ? $q : 'echo';
     });
 };
