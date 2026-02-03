@@ -14,7 +14,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Crab\\": "../engine/src/",
+      "Crab\\Engine\\": "../engine/src/",
       "App\\": "app/"
     }
   },

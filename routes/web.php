@@ -1,7 +1,7 @@
 <?php
 
-use Crab\Routing\Router;
-use Crab\Http\ResponseFactory;
+use Crab\Engine\Routing\Router;
+use Crab\Engine\Http\ResponseFactory;
 use Psr\Http\Message\ServerRequestInterface;
 
 return function (Router $router) {
