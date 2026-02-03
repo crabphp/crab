@@ -1,0 +1,37 @@
+<?php
+
+$cmd = $argv[1] ?? null;
+if ($cmd !== 'serve') {
+    echo "Usage: php cua serve [start|stop|restart|reload|status] [-d] [--host=127.0.0.1] [--port=8000] [--workers=2]\n";
+    exit(1);
+}
+
+$action = $argv[2] ?? 'start';
+$flags = [];
+foreach ($argv as $arg) {
+    if ($arg === '-d') {
+        $flags[] = '-d';
+    }
+}
+
+$options = getopt('', ['host::', 'port::', 'workers::', 'daemon']);
+if (isset($options['host'])) {
+    putenv('CRAB_HOST=' . $options['host']);
+}
+if (isset($options['port'])) {
+    putenv('CRAB_PORT=' . $options['port']);
+}
+if (isset($options['workers'])) {
+    putenv('CRAB_WORKERS=' . $options['workers']);
+}
+if (array_key_exists('daemon', $options) && !in_array('-d', $flags, true)) {
+    $flags[] = '-d';
+}
+
+$wmArgv = [__DIR__ . '/../engine/start.php', $action];
+foreach ($flags as $f) {
+    $wmArgv[] = $f;
+}
+$GLOBALS['argv'] = $wmArgv;
+
+require __DIR__ . '/../engine/start.php';

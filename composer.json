@@ -1,0 +1,13 @@
+{
+  "name": "crabphp/crab",
+  "type": "project",
+  "require": {
+    "workerman/workerman": "^4.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Crab\\": "../engine/src/",
+      "App\\": "app/"
+    }
+  }
+}
