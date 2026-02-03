@@ -23,8 +23,11 @@
   "prefer-stable": true,
   "repositories": [
     {
-      "type": "vcs",
-      "url": "https://github.com/crabphp/engine"
+      "type": "path",
+      "url": "../engine",
+      "options": {
+        "symlink": true
+      }
     }
   ],
   "config": {
