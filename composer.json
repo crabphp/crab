@@ -21,6 +21,12 @@
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/crabphp/engine"
+    }
+  ],
   "config": {
     "allow-plugins": {
       "carthage-software/mago": true
