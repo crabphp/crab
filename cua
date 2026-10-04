@@ -1,19 +1,8 @@
+#!/usr/bin/env php
 <?php
 
-use Crab\Engine\Config\ConfigServiceProvider;
-use Crab\Engine\Console\ConsoleServiceProvider;
-use Crab\Engine\Console\Kernel;
-use Crab\Engine\Foundation\Application;
+declare(strict_types=1);
 
-$autoload = __DIR__ . '/vendor/autoload.php';
-if (file_exists($autoload)) {
-    require_once $autoload;
-}
+require __DIR__ . '/vendor/autoload.php';
 
-$app = new Application(__DIR__);
-$container = $app->container();
-(new ConfigServiceProvider($container))->register();
-(new ConsoleServiceProvider($container))->register();
-
-$kernel = $container->make(Kernel::class);
-exit($kernel->handle($argv));
+exit((require __DIR__ . '/app.php')->console->run(array_slice($argv, 1)));

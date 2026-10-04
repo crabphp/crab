@@ -1,20 +1,12 @@
 <?php
 
-use Crab\Engine\Routing\Router;
-use Crab\Engine\Http\ResponseFactory;
-use Psr\Http\Message\ServerRequestInterface;
+declare(strict_types=1);
 
-return function (Router $router) {
-    $router->get('/', function () {
-        return ResponseFactory::text('CrabPHP OK');
-    });
+use App\Handlers\Hello;
+use Crab\Contracts\Routing\Router;
 
-    $router->get('/hello', function () {
-        return 'Hello CrabPHP';
-    });
+return static function (Router $router): void {
+    $router->get('/', static fn() => "Hello from Crab\n");
 
-    $router->get('/echo', function (ServerRequestInterface $request) {
-        $q = $request->getQueryParams()['q'] ?? '';
-        return $q !== '' ? $q : 'echo';
-    });
+    $router->get('/hello/{name}', Hello::class);
 };

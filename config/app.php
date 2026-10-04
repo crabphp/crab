@@ -1,17 +1,11 @@
 <?php
 
-use Crab\Engine\Config\ConfigServiceProvider;
-use Crab\Engine\Events\EventsServiceProvider;
-use Crab\Engine\Routing\RoutingServiceProvider;
-use Crab\Engine\Http\HttpServiceProvider;
-use App\Providers\AppServiceProvider;
+declare(strict_types=1);
 
 return [
-    'providers' => [
-        ConfigServiceProvider::class,
-        EventsServiceProvider::class,
-        RoutingServiceProvider::class,
-        HttpServiceProvider::class,
-        AppServiceProvider::class,
-    ],
+    // Show the details of a failure to the client. Never in production.
+    'debug' => env('APP_DEBUG', false),
+
+    // Give every request an id, returned in X-Request-Id and logged with failures.
+    'request_id' => env('APP_REQUEST_ID', false),
 ];
