@@ -27,7 +27,7 @@ app/
   Providers/        where your services are bound
 
 config/
-  app.php           debug, request ids
+  app.php           name, debug
   log.php           where and how much to log
   server.php        address and worker count
 
