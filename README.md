@@ -35,7 +35,7 @@ tests/              tests that call the application without a server
 .env                settings for this machine, never committed
 ~~~
 
-Everything starts in `app.php`; it is ten lines and reads top to bottom.
+Everything starts in `app.php`, which reads top to bottom. It sets `$router` and `$console` and then includes the two route files, so those files use the variable directly.
 
 ## Everyday tasks
 

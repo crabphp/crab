@@ -15,7 +15,10 @@ $app = new App(Config::load(__DIR__ . '/config'));
 
 $app->register(AppProvider::class);
 
-(require __DIR__ . '/routes/web.php')($app->router);
-(require __DIR__ . '/routes/console.php')($app->console);
+$router = $app->router;
+require __DIR__ . '/routes/web.php';
+
+$console = $app->console;
+require __DIR__ . '/routes/console.php';
 
 return $app;
