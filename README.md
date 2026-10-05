@@ -28,8 +28,14 @@ app/
 
 config/
   app.php           name, debug
+  database.php      which database, and where the migrations are
   log.php           where and how much to log
   server.php        address and worker count
+
+database/
+  migrations/       changes to the tables, in order
+
+storage/            what the application writes while it runs: logs, the SQLite file. Never committed.
 
 tests/              tests that call the application without a server
 .env                settings for this machine, never committed
@@ -60,6 +66,8 @@ return App::configure(__DIR__)
 | Add a command | Add it in `routes/console.php`, then `php cua <name>` |
 | Share a service | Bind it in `app/Providers/AppProvider.php`, then ask for it in a constructor |
 | Change a setting | Edit `.env`; add new settings to a file in `config/` and read them with `config('file.key')` |
+| Change the tables | `php cua make:migration create_posts_table`, edit the file, then `php cua migrate` |
+| Undo the last migration run | `php cua migrate:rollback` |
 | See all routes | `php cua routes` |
 | Describe the API | `php cua openapi`, or `--output=openapi.json` |
 | See all commands | `php cua` |
@@ -100,6 +108,22 @@ Route::post('/users', static function (#[Email] string $email, #[Length(min: 2)]
 Parameters that are not in the pattern are fields of the request, read from the JSON body, or from the query string for `GET`. They are checked before the handler runs, and a request that does not fit is answered with `422` and the problems by field. When a route takes many fields, declare a class for them and take that instead.
 
 `php cua openapi` writes the OpenAPI description of every route from these signatures.
+
+## The database
+
+It works out of the box with SQLite, in `storage/database.sqlite`; set `DB_DSN` in `.env` for MySQL. `php cua migrate` creates the tables, starting with the `users` table in `database/migrations/`.
+
+~~~php
+// A migration: database/migrations/2026_10_06_000000_create_users_table.php
+$schema->create('users', function (Table $table) {
+    $table->id();
+    $table->string('name');
+    $table->string('email')->unique();
+    $table->timestamps();
+});
+~~~
+
+A handler class asks for `Crab\Contracts\Database\Database` in its constructor and queries with `$db->table('users')->where('email', $email)->first()`.
 
 ## The framework for now
 
