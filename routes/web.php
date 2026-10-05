@@ -3,9 +3,8 @@
 declare(strict_types=1);
 
 use App\Handlers\Hello;
+use Crab\Route;
 
-/** @var Crab\Contracts\Routing\Router $router */
+Route::get('/', static fn (): string => "Hello from Crab\n");
 
-$router->get('/', static fn() => "Hello from Crab\n");
-
-$router->get('/hello/{name}', Hello::class);
+Route::get('/hello/{name}', Hello::class);

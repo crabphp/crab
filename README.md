@@ -15,7 +15,7 @@ Then open http://127.0.0.1:8080. `php cua serve --single` serves in one process,
 ## Where things are
 
 ~~~text
-app.php             builds the application: config, providers, routes
+app.php             describes the application: config, providers, routes
 cua                 the command line: php cua <command>
 
 routes/
@@ -35,7 +35,19 @@ tests/              tests that call the application without a server
 .env                settings for this machine, never committed
 ~~~
 
-Everything starts in `app.php`, which reads top to bottom. It sets `$router` and `$console` and then includes the two route files, so those files use the variable directly.
+Everything starts in `app.php`, which describes the application one line at a time:
+
+~~~php
+return App::configure()
+    ->withEnv(__DIR__ . '/.env')
+    ->withConfig(__DIR__ . '/config')
+    ->withProviders(AppProvider::class)
+    ->withRoutes(__DIR__ . '/routes/web.php')
+    ->withCommands(__DIR__ . '/routes/console.php')
+    ->create();
+~~~
+
+Add `->withMiddleware(Cors::class)` for middleware around every route, and further providers or route files as arguments to the same calls. The route files declare with `Route::` and `Command::`.
 
 ## Everyday tasks
 
@@ -47,6 +59,7 @@ Everything starts in `app.php`, which reads top to bottom. It sets `$router` and
 | Share a service | Bind it in `app/Providers/AppProvider.php`, then ask for it in a constructor |
 | Change a setting | Edit `.env`; add new settings to a file in `config/` and read them with `config('file.key')` |
 | See all routes | `php cua routes` |
+| Describe the API | `php cua openapi`, or `--output=openapi.json` |
 | See all commands | `php cua` |
 | Run the tests | `composer test` |
 
@@ -54,11 +67,37 @@ Everything starts in `app.php`, which reads top to bottom. It sets `$router` and
 
 ~~~php
 // routes/web.php
-$router->get('/', static fn() => "Hello from Crab\n");
-$router->get('/hello/{name}', Hello::class);
+Route::get('/', static fn (): string => "Hello from Crab\n");
+Route::get('/hello/{name}', Hello::class);
 ~~~
 
-A closure returns a string or a response. `{name}` arrives as `$request->getAttribute('name')`. A class handler implements PSR-15's `RequestHandlerInterface` and is made by the container, so its constructor can ask for services by type.
+~~~php
+// app/Handlers/Hello.php
+final class Hello
+{
+    public function __invoke(string $name): array
+    {
+        return ['hello' => $name];
+    }
+}
+~~~
+
+A handler is a closure, a class with `__invoke()`, or a class and a method, `[UserController::class, 'show']`. The container makes the class, so its constructor can ask for services by type. `{name}` arrives as the parameter `$name`; declare it `int` and anything else is refused with `422`.
+
+A handler returns data, which is sent as JSON, or a response when it needs to set the status or a header:
+
+~~~php
+Route::get('/users', static fn (int $page = 1, ?string $search = null): array => ...);      // fields from the query string
+
+Route::post('/users', static function (#[Email] string $email, #[Length(min: 2)] string $name): Response {
+    ...
+    return Response::created($user, "/users/{$user->id}");
+});
+~~~
+
+Parameters that are not in the pattern are fields of the request, read from the JSON body, or from the query string for `GET`. They are checked before the handler runs, and a request that does not fit is answered with `422` and the problems by field. When a route takes many fields, declare a class for them and take that instead.
+
+`php cua openapi` writes the OpenAPI description of every route from these signatures.
 
 ## The framework for now
 
