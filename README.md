@@ -38,16 +38,18 @@ tests/              tests that call the application without a server
 Everything starts in `app.php`, which describes the application one line at a time:
 
 ~~~php
-return App::configure()
-    ->withEnv(__DIR__ . '/.env')
-    ->withConfig(__DIR__ . '/config')
-    ->withProviders(AppProvider::class)
-    ->withRoutes(__DIR__ . '/routes/web.php')
-    ->withCommands(__DIR__ . '/routes/console.php')
+return App::configure(__DIR__)
+    ->withProviders([
+        AppProvider::class,
+    ])
+    ->withRouting(
+        routes: 'routes/web.php',
+        commands: 'routes/console.php',
+    )
     ->create();
 ~~~
 
-Add `->withMiddleware(Cors::class)` for middleware around every route, and further providers or route files as arguments to the same calls. The route files declare with `Route::` and `Command::`.
+`__DIR__` is the application's base path: `.env` and `config/` are loaded from it, and the other paths are relative to it. Add `->withMiddleware(Cors::class)` for middleware around every route, and further providers or route files to the same lists. The route files declare with `Route::` and `Command::`.
 
 ## Everyday tasks
 

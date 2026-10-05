@@ -5,12 +5,15 @@ declare(strict_types=1);
 use App\Providers\AppProvider;
 use Crab\App;
 
-// Builds the application. `php cua` runs it and the tests load it.
+// Describes the application. `php cua` runs it and the tests load it.
+// The .env file and the config folder beside this file are loaded by default.
 
-return App::configure()
-    ->withEnv(__DIR__ . '/.env')
-    ->withConfig(__DIR__ . '/config')
-    ->withProviders(AppProvider::class)
-    ->withRoutes(__DIR__ . '/routes/web.php')
-    ->withCommands(__DIR__ . '/routes/console.php')
+return App::configure(__DIR__)
+    ->withProviders([
+        AppProvider::class,
+    ])
+    ->withRouting(
+        routes: 'routes/web.php',
+        commands: 'routes/console.php',
+    )
     ->create();
