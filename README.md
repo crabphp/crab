@@ -10,7 +10,18 @@ cp .env.example .env
 php cua serve
 ~~~
 
-Then open http://127.0.0.1:8080. `php cua serve --single` serves in one process, without PHP's `pcntl` and `posix` extensions.
+Then open http://127.0.0.1:8080. The server restarts whenever you save a file under `app/`, `config/` or `routes/`, or `.env`; `--no-watch` serves without that. `php cua serve --single` serves in one process, without PHP's `pcntl` and `posix` extensions.
+
+## In production
+
+~~~sh
+php cua serve --daemon       # start in the background; returns once it is up
+php cua status               # is it running?
+php cua reload               # new code, without refusing a connection
+php cua stop                 # finish the requests in hand, then stop
+~~~
+
+A deploy is: put the new code in place, `php cua migrate`, `php cua reload`. If the new code cannot start, the running server goes on serving and `reload` fails with the reason. The server's process id is in `storage/crab.pid` and what it prints in `storage/logs/server.log`. Under Docker, run `php cua serve --no-watch` in the foreground instead and let the container be replaced.
 
 ## Where things are
 
@@ -30,7 +41,7 @@ config/
   app.php           name, debug
   database.php      which database, and where the migrations are
   log.php           where and how much to log
-  server.php        address and worker count
+  server.php        address, worker count, what to watch, where the pid and log go
 
 database/
   migrations/       changes to the tables, in order
@@ -68,6 +79,8 @@ return App::configure(__DIR__)
 | Change a setting | Edit `.env`; add new settings to a file in `config/` and read them with `config('file.key')` |
 | Change the tables | `php cua make:migration create_posts_table`, edit the file, then `php cua migrate` |
 | Undo the last migration run | `php cua migrate:rollback` |
+| Restart on save while developing | `php cua serve` does already |
+| See what a command takes | `php cua serve --help` |
 | See all routes | `php cua routes` |
 | Describe the API | `php cua openapi`, or `--output=openapi.json` |
 | See all commands | `php cua` |
@@ -106,6 +119,14 @@ Route::post('/users', static function (#[Email] string $email, #[Length(min: 2)]
 ~~~
 
 Parameters that are not in the pattern are fields of the request, read from the JSON body, or from the query string for `GET`. They are checked before the handler runs, and a request that does not fit is answered with `422` and the problems by field. When a route takes many fields, declare a class for them and take that instead.
+
+Routes that share a path prefix or middleware go in a group:
+
+~~~php
+Route::group(prefix: '/admin', middleware: [Authenticate::class], routes: function () {
+    Route::get('/users', [AdminController::class, 'users']);     // GET /admin/users
+});
+~~~
 
 `php cua openapi` writes the OpenAPI description of every route from these signatures.
 
