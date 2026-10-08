@@ -17,5 +17,6 @@ return App::configure(__DIR__)
     ->withRouting(
         routes: 'routes/web.php',
         commands: 'routes/console.php',
+        health: '/up',
     )
     ->create();

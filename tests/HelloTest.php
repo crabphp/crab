@@ -32,6 +32,14 @@ final class HelloTest extends TestCase
         self::assertSame('{"hello":"Crab"}', (string) $response->getBody());
     }
 
+    public function testTheApplicationSaysItIsUp(): void
+    {
+        $response = $this->app->handle(new Request('GET', '/up'));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('{"status":"up"}', (string) $response->getBody());
+    }
+
     public function testUnknownPathIsNotFound(): void
     {
         self::assertSame(404, $this->app->handle(new Request('GET', '/missing'))->getStatusCode());

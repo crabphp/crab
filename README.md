@@ -62,11 +62,12 @@ return App::configure(__DIR__)
     ->withRouting(
         routes: 'routes/web.php',
         commands: 'routes/console.php',
+        health: '/up',
     )
     ->create();
 ~~~
 
-`__DIR__` is the application's base path: `.env` and `config/` are loaded from it, and the other paths are relative to it. Add `->withMiddleware(Cors::class)` for middleware around every route, and further providers or route files to the same lists. The route files declare with `Route::` and `Command::`.
+`__DIR__` is the application's base path: `.env` and `config/` are loaded from it, and the other paths are relative to it. `health: '/up'` makes `GET /up` answer `{"status":"up"}`, for whatever needs to know the server takes requests. Add further providers or route files to the same lists; the route files declare with `Route::` and `Command::`.
 
 ## Everyday tasks
 
@@ -83,6 +84,10 @@ return App::configure(__DIR__)
 | Restart on save while developing | `php cua serve` does already |
 | See what a command takes | `php cua serve --help` |
 | See all routes | `php cua routes` |
+| Let a frontend on another origin call the API | `->withMiddleware(prepend: [new Cors(['https://app.example.com'])])` in `app.php` |
+| Call another API | Add `HttpClientProvider::class` to the providers, and ask for `Crab\Contracts\HttpClient\Client` in a handler's constructor |
+| Take large uploads | Raise `max_body` and `body_timeout` in `config/server.php` |
+| Check the server is up | `GET /up` |
 | See all commands | `php cua` |
 | Run the tests | `composer test` |
 
@@ -130,7 +135,7 @@ Route::group(prefix: '/admin', middleware: [RequireAdmin::class], routes: functi
 Route::get('/me', [UserController::class, 'me'], middleware: [TokenAuth::class]);   // on one route
 ~~~
 
-`php cua make:middleware RequireAdmin` writes a middleware class in `app/Middleware/`. To run one around every request, add `->withMiddleware([Cors::class])` to `app.php`.
+`php cua make:middleware RequireAdmin` writes a middleware class in `app/Middleware/`. To run one around every request, add `->withMiddleware([RequireAdmin::class])` to `app.php`.
 
 ## The database
 
