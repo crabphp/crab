@@ -83,7 +83,6 @@ return App::configure(__DIR__)
 | Restart on save while developing | `php cua serve` does already |
 | See what a command takes | `php cua serve --help` |
 | See all routes | `php cua routes` |
-| Describe the API | `php cua openapi`, or `--output=openapi.json` |
 | See all commands | `php cua` |
 | Run the tests | `composer test` |
 
@@ -132,8 +131,6 @@ Route::get('/me', [UserController::class, 'me'], middleware: [TokenAuth::class])
 ~~~
 
 `php cua make:middleware RequireAdmin` writes a middleware class in `app/Middleware/`. To run one around every request, add `->withMiddleware([Cors::class])` to `app.php`.
-
-`php cua openapi` writes the OpenAPI description of every route from these signatures.
 
 ## The database
 
