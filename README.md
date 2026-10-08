@@ -75,6 +75,7 @@ return App::configure(__DIR__)
 | Add a page | Add a line to `routes/web.php` |
 | Handle a route in a class | Add a class to `app/Handlers/` and name it in the route |
 | Add a command | Add it in `routes/console.php`, then `php cua <name>` |
+| Add middleware | `php cua make:middleware Name`, then `middleware: [Name::class]` on a route or group, or `->withMiddleware([Name::class])` in `app.php` |
 | Share a service | Bind it in `app/Providers/AppProvider.php`, then ask for it in a constructor |
 | Change a setting | Edit `.env`; add new settings to a file in `config/` and read them with `config('file.key')` |
 | Change the tables | `php cua make:migration create_posts_table`, edit the file, then `php cua migrate` |
@@ -123,10 +124,14 @@ Parameters that are not in the pattern are fields of the request, read from the 
 Routes that share a path prefix or middleware go in a group:
 
 ~~~php
-Route::group(prefix: '/admin', middleware: [Authenticate::class], routes: function () {
+Route::group(prefix: '/admin', middleware: [RequireAdmin::class], routes: function () {
     Route::get('/users', [AdminController::class, 'users']);     // GET /admin/users
 });
+
+Route::get('/me', [UserController::class, 'me'], middleware: [TokenAuth::class]);   // on one route
 ~~~
+
+`php cua make:middleware RequireAdmin` writes a middleware class in `app/Middleware/`. To run one around every request, add `->withMiddleware([Cors::class])` to `app.php`.
 
 `php cua openapi` writes the OpenAPI description of every route from these signatures.
 
