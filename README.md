@@ -139,7 +139,7 @@ Route::group(prefix: '/admin', middleware: [RequireAdmin::class], routes: functi
 Route::get('/me', [UserController::class, 'me'], middleware: [TokenAuth::class]);   // on one route
 ~~~
 
-`php cua make:middleware RequireAdmin` writes a middleware class in `app/Middleware/`. To run one around every request, add `->withMiddleware([RequireAdmin::class])` to `app.php`.
+`php cua make:middleware RequireAdmin` writes a middleware class in `app/Http/`. To run one around every request, add `->withMiddleware([RequireAdmin::class])` to `app.php`.
 
 ## The database
 
