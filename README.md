@@ -34,7 +34,7 @@ routes/
   console.php       your own commands
 
 app/
-  Handlers/         route handlers as classes
+  Actions/         actions as classes
   Providers/        where your services are bound
 
 config/
@@ -74,7 +74,7 @@ return App::configure(__DIR__)
 | To do this | Do this |
 | --- | --- |
 | Add a page | Add a line to `routes/web.php` |
-| Handle a route in a class | Add a class to `app/Handlers/` and name it in the route |
+| Handle a route in a class | Add a class to `app/Actions/` and name it in the route |
 | Add a command | Add it in `routes/console.php`, then `php cua <name>` |
 | Add middleware | `php cua make:middleware Name`, then `middleware: [Name::class]` on a route or group, or `->withMiddleware([Name::class])` in `app.php` |
 | Share a service | Bind it in `app/Providers/AppProvider.php`, then ask for it in a constructor |
@@ -83,9 +83,13 @@ return App::configure(__DIR__)
 | Undo the last migration run | `php cua migrate:rollback` |
 | Restart on save while developing | `php cua serve` does already |
 | See what a command takes | `php cua serve --help` |
-| See all routes | `php cua routes` |
+| See all routes | `php cua route:list` |
 | Let a frontend on another origin call the API | `->withMiddleware(prepend: [new Cors(['https://app.example.com'])])` in `app.php` |
-| Call another API | Add `HttpClientProvider::class` to the providers, and ask for `Crab\Contracts\HttpClient\Client` in a handler's constructor |
+| Call another API | Add `HttpClientProvider::class` to the providers, and ask for `Crab\Contracts\HttpClient\Client` in an action's constructor |
+| Keep the result of slow work | Add `CacheProvider::class`, ask for `Crab\Contracts\Cache\Cache`, and `$cache->remember('key', 3600, fn () => ...)` |
+| Do work after the request has been answered | Add `QueueProvider::class`, `php cua queue:install`, `php cua migrate`; push with `$queue->push(Job::class, id: 7)` and run `php cua queue:work` |
+| Run something by the clock | Add `ScheduleProvider::class` before `AppProvider`, declare the task in `AppProvider`, and keep `php cua schedule:work` running |
+| React to something that happened | Add `EventsProvider::class` before `AppProvider`, `listen()` in `AppProvider`, and `dispatch()` an event object |
 | Take large uploads | Raise `max_body` and `body_timeout` in `config/server.php` |
 | Check the server is up | `GET /up` |
 | See all commands | `php cua` |
@@ -100,19 +104,19 @@ Route::get('/hello/{name}', Hello::class);
 ~~~
 
 ~~~php
-// app/Handlers/Hello.php
+// app/Actions/Hello.php
 final class Hello
 {
-    public function __invoke(string $name): array
+    public function handle(string $name): array
     {
         return ['hello' => $name];
     }
 }
 ~~~
 
-A handler is a closure, a class with `__invoke()`, or a class and a method, `[UserController::class, 'show']`. The container makes the class, so its constructor can ask for services by type. `{name}` arrives as the parameter `$name`; declare it `int` and anything else is refused with `422`.
+An action is a closure, a class with `handle()`, or a class and a method, `[UserController::class, 'show']`. The container makes the class, so its constructor can ask for services by type. `{name}` arrives as the parameter `$name`; declare it `int` and anything else is refused with `422`.
 
-A handler returns data, which is sent as JSON, or a response when it needs to set the status or a header:
+An action returns data, which is sent as JSON, or a response when it needs to set the status or a header:
 
 ~~~php
 Route::get('/users', static fn (int $page = 1, ?string $search = null): array => ...);      // fields from the query string
@@ -123,7 +127,7 @@ Route::post('/users', static function (#[Email] string $email, #[Length(min: 2)]
 });
 ~~~
 
-Parameters that are not in the pattern are fields of the request, read from the JSON body, or from the query string for `GET`. They are checked before the handler runs, and a request that does not fit is answered with `422` and the problems by field. When a route takes many fields, declare a class for them and take that instead.
+Parameters that are not in the pattern are fields of the request, read from the JSON body, or from the query string for `GET`. They are checked before the action runs, and a request that does not fit is answered with `422` and the problems by field. When a route takes many fields, declare a class for them and take that instead.
 
 Routes that share a path prefix or middleware go in a group:
 
@@ -151,7 +155,11 @@ $schema->create('users', function (Table $table) {
 });
 ~~~
 
-A handler class asks for `Crab\Contracts\Database\Database` in its constructor and queries with `$db->table('users')->where('email', $email)->first()`.
+An action class asks for `Crab\Contracts\Database\Database` in its constructor and queries with `$db->table('users')->where('email', $email)->first()`.
+
+## The guide
+
+Every topic has a page in the framework's `docs/` folder: routing, validation, the database, queues, scheduling, testing, deployment and the rest. Read them in a browser with `composer docs` in the framework's folder, which serves them at http://127.0.0.1:8900.
 
 ## The framework for now
 
