@@ -18,7 +18,7 @@ Then open http://127.0.0.1:8080. The server restarts whenever you save a file un
 php cua serve --daemon       # start in the background; returns once it is up
 php cua status               # is it running?
 php cua reload               # new code, without refusing a connection
-php cua stop                 # finish the requests in hand, then stop
+php cua stop                 # drain requests up to server.drain seconds, then stop
 ~~~
 
 A deploy is: put the new code in place, `php cua migrate`, `php cua reload`. If the new code cannot start, the running server goes on serving and `reload` fails with the reason. The server's process id is in `storage/crab.pid` and what it prints in `storage/logs/server.log`. Under Docker, run `php cua serve --no-watch` in the foreground instead and let the container be replaced.
@@ -55,8 +55,13 @@ tests/              tests that call the application without a server
 Everything starts in `app.php`, which describes the application one line at a time:
 
 ~~~php
+use App\Providers\AppProvider;
+use Crab\App;
+use Crab\Database\DatabaseProvider;
+
 return App::configure(__DIR__)
     ->withProviders([
+        DatabaseProvider::class,
         AppProvider::class,
     ])
     ->withRouting(
@@ -87,7 +92,7 @@ return App::configure(__DIR__)
 | Let a frontend on another origin call the API | `->withMiddleware(prepend: [new Cors(['https://app.example.com'])])` in `app.php` |
 | Call another API | Add `HttpClientProvider::class` to the providers, and ask for `Crab\Contracts\HttpClient\Client` in an action's constructor |
 | Keep the result of slow work | Add `CacheProvider::class`, ask for `Crab\Contracts\Cache\Cache`, and `$cache->remember('key', 3600, fn () => ...)` |
-| Do work after the request has been answered | Add `QueueProvider::class`, `php cua queue:install`, `php cua migrate`; push with `$queue->push(Job::class, id: 7)` and run `php cua queue:work` |
+| Do work outside the request | Add `QueueProvider::class`, `php cua queue:install`, `php cua migrate`; push with `$queue->push(Job::class, id: 7)` and run `php cua queue:work`; a worker may start before the HTTP response is sent |
 | Run something by the clock | Add `ScheduleProvider::class` before `AppProvider`, declare the task in `AppProvider`, and keep `php cua schedule:work` running |
 | React to something that happened | Add `EventsProvider::class` before `AppProvider`, `listen()` in `AppProvider`, and `dispatch()` an event object |
 | Take large uploads | Raise `max_body` and `body_timeout` in `config/server.php` |
@@ -99,12 +104,17 @@ return App::configure(__DIR__)
 
 ~~~php
 // routes/web.php
+use App\Actions\Hello;
+use Crab\Route;
+
 Route::get('/', static fn (): string => "Hello from Crab\n");
 Route::get('/hello/{name}', Hello::class);
 ~~~
 
 ~~~php
 // app/Actions/Hello.php
+namespace App\Actions;
+
 final class Hello
 {
     public function handle(string $name): array
@@ -119,11 +129,10 @@ An action is a closure, a class with `handle()`, or a class and a method, `[User
 An action returns data, which is sent as JSON, or a response when it needs to set the status or a header:
 
 ~~~php
-Route::get('/users', static fn (int $page = 1, ?string $search = null): array => ...);      // fields from the query string
+Route::get('/users', static fn (int $page = 1, ?string $search = null): array => ['page' => $page, 'search' => $search]);
 
 Route::post('/users', static function (#[Email] string $email, #[Length(min: 2)] string $name): Response {
-    ...
-    return Response::created($user, "/users/{$user->id}");
+    return Response::created(['email' => $email, 'name' => $name]);
 });
 ~~~
 
@@ -132,6 +141,8 @@ Parameters that are not in the pattern are fields of the request, read from the 
 Routes that share a path prefix or middleware go in a group:
 
 ~~~php
+use Crab\Auth\TokenAuth;
+
 Route::group(prefix: '/admin', middleware: [RequireAdmin::class], routes: function () {
     Route::get('/users', [AdminController::class, 'users']);     // GET /admin/users
 });
