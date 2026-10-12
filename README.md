@@ -57,11 +57,9 @@ Everything starts in `app.php`, which describes the application one line at a ti
 ~~~php
 use App\Providers\AppProvider;
 use Crab\App;
-use Crab\Database\DatabaseProvider;
 
 return App::configure(__DIR__)
     ->withProviders([
-        DatabaseProvider::class,
         AppProvider::class,
     ])
     ->withRouting(
@@ -72,7 +70,7 @@ return App::configure(__DIR__)
     ->create();
 ~~~
 
-`__DIR__` is the application's base path: `.env` and `config/` are loaded from it, and the other paths are relative to it. `health: '/up'` makes `GET /up` answer `{"status":"up"}`, for whatever needs to know the server takes requests. Add further providers or route files to the same lists; the route files declare with `Route::` and `Command::`.
+`__DIR__` is the application's base path: `.env` and `config/` are loaded from it, and the other paths are relative to it. `health: '/up'` makes `GET /up` answer `{"status":"up"}`, for whatever needs to know the server takes requests. The framework providers are registered by default; name only your own and your packages' providers. Add further providers or route files to the same lists; the route files declare with `Route::` and `Command::`.
 
 ## Everyday tasks
 
@@ -90,11 +88,11 @@ return App::configure(__DIR__)
 | See what a command takes | `php cua serve --help` |
 | See all routes | `php cua route:list` |
 | Let a frontend on another origin call the API | `->withMiddleware(prepend: [new Cors(['https://app.example.com'])])` in `app.php` |
-| Call another API | Add `HttpClientProvider::class` to the providers, and ask for `Crab\Contracts\HttpClient\Client` in an action's constructor |
-| Keep the result of slow work | Add `CacheProvider::class`, ask for `Crab\Contracts\Cache\Cache`, and `$cache->remember('key', 3600, fn () => ...)` |
-| Do work outside the request | Add `QueueProvider::class`, `php cua queue:install`, `php cua migrate`; push with `$queue->push(Job::class, id: 7)` and run `php cua queue:work`; a worker may start before the HTTP response is sent |
-| Run something by the clock | Add `ScheduleProvider::class` before `AppProvider`, declare the task in `AppProvider`, and keep `php cua schedule:work` running |
-| React to something that happened | Add `EventsProvider::class` before `AppProvider`, `listen()` in `AppProvider`, and `dispatch()` an event object |
+| Call another API | Ask for `Crab\Contracts\HttpClient\Client` in an action's constructor |
+| Keep the result of slow work | Ask for `Crab\Contracts\Cache\Cache`, and `$cache->remember('key', 3600, fn () => ...)` |
+| Do work outside the request | `php cua queue:install`, `php cua migrate`; push with `$queue->push(Job::class, id: 7)` and run `php cua queue:work`; a worker may start before the HTTP response is sent |
+| Run something by the clock | Declare the task in `AppProvider`, and keep `php cua schedule:work` running |
+| React to something that happened | `listen()` in `AppProvider`, and `dispatch()` an event object |
 | Take large uploads | Raise `max_body` and `body_timeout` in `config/server.php` |
 | Check the server is up | `GET /up` |
 | See all commands | `php cua` |
