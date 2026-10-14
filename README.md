@@ -141,11 +141,11 @@ Routes that share a path prefix or middleware go in a group:
 ~~~php
 use Crab\Auth\TokenAuth;
 
-Route::group(prefix: '/admin', middleware: [RequireAdmin::class], routes: function () {
+Route::prefix('/admin')->middleware(RequireAdmin::class)->group(function () {
     Route::get('/users', [AdminController::class, 'users']);     // GET /admin/users
 });
 
-Route::get('/me', [UserController::class, 'me'], middleware: [TokenAuth::class]);   // on one route
+Route::get('/me', [UserController::class, 'me'])->middleware(TokenAuth::class);   // on one route
 ~~~
 
 `php cua make:middleware RequireAdmin` writes a middleware class in `app/Http/`. To run one around every request, add `->withMiddleware([RequireAdmin::class])` to `app.php`.
