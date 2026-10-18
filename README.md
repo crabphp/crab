@@ -79,7 +79,7 @@ return App::configure(__DIR__)
 | Add a page | Add a line to `routes/web.php` |
 | Handle a route in a class | Add a class to `app/Actions/` and name it in the route |
 | Add a command | Add it in `routes/console.php`, then `php cua <name>` |
-| Add middleware | `php cua make:middleware Name`, then `middleware: [Name::class]` on a route or group, or `->withMiddleware([Name::class])` in `app.php` |
+| Add middleware | `php cua make:middleware Name`, then `->middleware(Name::class)` on a route or group, or `->withMiddleware([Name::class])` in `app.php` |
 | Share a service | Bind it in `app/Providers/AppProvider.php`, then ask for it in a constructor |
 | Change a setting | Edit `.env`; add new settings to a file in `config/` and read them with `config('file.key')` |
 | Change the tables | `php cua make:migration create_posts_table`, edit the file, then `php cua migrate` |
@@ -109,11 +109,13 @@ Route::get('/', static fn (): string => "Hello from Crab\n");
 Route::get('/hello/{name}', Hello::class);
 ~~~
 
+By default, a worker reuses its action objects and singleton services across requests. Keep request data in `handle()` parameters and local variables, never in their properties or statics.
+
 ~~~php
 // app/Actions/Hello.php
 namespace App\Actions;
 
-final class Hello
+final readonly class Hello
 {
     public function handle(string $name): array
     {
@@ -134,7 +136,7 @@ Route::post('/users', static function (#[Email] string $email, #[Length(min: 2)]
 });
 ~~~
 
-Parameters that are not in the pattern are fields of the request, read from the JSON body, or from the query string for `GET`. They are checked before the action runs, and a request that does not fit is answered with `422` and the problems by field. When a route takes many fields, declare a class for them and take that instead.
+Parameters that are not in the pattern are fields of the request, read from the JSON body, or from the query string for `GET`. They are checked before the action runs, and a request that does not fit is answered with `422` and the problems by field. Send `Accept: application/json` from API clients so errors are JSON too; without it, errors are plain text. When a route takes many fields, declare a class for them and take that instead.
 
 Routes that share a path prefix or middleware go in a group:
 

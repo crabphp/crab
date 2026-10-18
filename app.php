@@ -12,9 +12,5 @@ return App::configure(__DIR__)
     ->withProviders([
         AppProvider::class,
     ])
-    ->withRouting(
-        routes: 'routes/web.php',
-        commands: 'routes/console.php',
-        health: '/up',
-    )
+    ->withRouting(routes: 'routes/web.php', commands: 'routes/console.php', health: '/up')
     ->create();
