@@ -6,7 +6,7 @@ return [
     'address' => env('SERVER_ADDRESS', 'tcp://127.0.0.1:8080'),
 
     // Worker processes. More than one needs PHP's pcntl and posix extensions.
-    'workers' => (int) env('SERVER_WORKERS', 1),
+    'workers' => env('SERVER_WORKERS', 1),
 
     // Servers `serve` runs beside HTTP, each switched on from .env. Off while you develop, when you
     // start `queue:work` or `schedule:work` only as you need them; on in production, where one command

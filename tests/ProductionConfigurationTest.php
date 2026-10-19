@@ -73,4 +73,19 @@ final class ProductionConfigurationTest extends TestCase
             rmdir($directory);
         }
     }
+
+    public function testTheWorkerEnvironmentIsNotTruncatedBeforeCommandValidation(): void
+    {
+        $previous = getenv('SERVER_WORKERS');
+        try {
+            putenv('SERVER_WORKERS=2workers');
+            $settings = require dirname(__DIR__) . '/config/server.php';
+            $app = new App(new \Crab\Config\Config(['server' => $settings]));
+            $this->expectException(\InvalidArgumentException::class);
+            $this->expectExceptionMessage('--workers=4');
+            \Crab\Commands\Serve::workers($app, new \Crab\Console\Input());
+        } finally {
+            putenv($previous === false ? 'SERVER_WORKERS' : 'SERVER_WORKERS=' . $previous);
+        }
+    }
 }
