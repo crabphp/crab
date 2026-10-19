@@ -18,11 +18,14 @@ Choose the production values in `.env`; use the queue and schedule switches when
 
 ~~~text
 APP_DEBUG=false
+APP_URL=https://api.example.com
 LOG_LEVEL=info
 SERVER_WORKERS=4
 SERVER_QUEUE=true
 SERVER_SCHEDULE=true
 ~~~
+
+Set `APP_URL` to the public application URL used for [named links](../framework/docs/routing.md#named-routes), including links written by jobs and commands.
 
 The database queue needs its migration generated once with `php cua queue:install` and applied with `php cua migrate`. HTTP, queue and scheduler then start and reload together:
 
