@@ -8,7 +8,7 @@ use Crab\App;
 use Crab\Http\Request;
 use PHPUnit\Framework\TestCase;
 
-final class HelloTest extends TestCase
+final class SayHelloTest extends TestCase
 {
     private App $app;
 

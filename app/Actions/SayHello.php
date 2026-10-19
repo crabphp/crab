@@ -10,7 +10,7 @@ namespace App\Actions;
  * handle() takes the route's parameters by name, and what it returns
  * is sent as JSON.
  */
-final class Hello
+final class SayHello
 {
     /**
      * @return array{hello: string}

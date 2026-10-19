@@ -14,6 +14,18 @@ Then open http://127.0.0.1:8080. The server restarts whenever you save a file un
 
 ## In production
 
+Choose the production values in `.env`; use the queue and schedule switches when your application needs them, and size the HTTP worker count for the machine:
+
+~~~text
+APP_DEBUG=false
+LOG_LEVEL=info
+SERVER_WORKERS=4
+SERVER_QUEUE=true
+SERVER_SCHEDULE=true
+~~~
+
+The database queue needs its migration generated once with `php cua queue:install` and applied with `php cua migrate`. HTTP, queue and scheduler then start and reload together:
+
 ~~~sh
 php cua serve --daemon       # start in the background; returns once it is up
 php cua status               # is it running?
@@ -21,7 +33,7 @@ php cua reload               # new code, without refusing a connection
 php cua stop                 # drain requests up to server.drain seconds, then stop
 ~~~
 
-A deploy is: put the new code in place, `php cua migrate`, `php cua reload`. If the new code cannot start, the running server goes on serving and `reload` fails with the reason. The server's process id is in `storage/crab.pid` and what it prints in `storage/logs/server.log`. Under Docker, run `php cua serve --no-watch` in the foreground instead and let the container be replaced.
+Follow [A deploy, start to finish](../framework/docs/deployment.md#a-deploy-start-to-finish): install dependencies and run migrations successfully before `php cua reload`. If the new code cannot start, the running server goes on serving and `reload` fails with the reason. The server's process id is in `storage/crab.pid` and what it prints in `storage/logs/server.log`. Under Docker, run `php cua serve --no-watch` in the foreground instead and let the container be replaced.
 
 ## Where things are
 
@@ -39,6 +51,7 @@ app/
 
 config/
   app.php           name, debug
+  cache.php         store, application-specific cache directory
   database.php      which database, and where the migrations are
   log.php           where and how much to log
   server.php        address, worker count, what to watch, where the pid and log go
@@ -102,20 +115,20 @@ return App::configure(__DIR__)
 
 ~~~php
 // routes/web.php
-use App\Actions\Hello;
+use App\Actions\SayHello;
 use Crab\Route;
 
 Route::get('/', static fn (): string => "Hello from Crab\n");
-Route::get('/hello/{name}', Hello::class);
+Route::get('/hello/{name}', SayHello::class);
 ~~~
 
-By default, a worker reuses its action objects and singleton services across requests. Keep request data in `handle()` parameters and local variables, never in their properties or statics.
+A route retains its resolved action callable for the worker’s life, even with a transient binding; singleton services are also shared across requests. Keep request data in `handle()` parameters and local variables, never in their properties or statics.
 
 ~~~php
-// app/Actions/Hello.php
+// app/Actions/SayHello.php
 namespace App\Actions;
 
-final readonly class Hello
+final readonly class SayHello
 {
     public function handle(string $name): array
     {
@@ -129,6 +142,10 @@ An action is a closure, a class with `handle()`, or a class and a method, `[User
 An action returns data, which is sent as JSON, or a response when it needs to set the status or a header:
 
 ~~~php
+use Crab\Http\Response;
+use Crab\Validation\Email;
+use Crab\Validation\Length;
+
 Route::get('/users', static fn (int $page = 1, ?string $search = null): array => ['page' => $page, 'search' => $search]);
 
 Route::post('/users', static function (#[Email] string $email, #[Length(min: 2)] string $name): Response {
