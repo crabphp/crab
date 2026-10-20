@@ -57,10 +57,7 @@ config/
   cache.php         store, application-specific cache directory
   database.php      which database, and where the migrations are
   log.php           where and how much to log
-  server.php        address, worker count, what to watch, where the pid and log go
-
-database/
-  migrations/       changes to the tables, in order
+  server.php        address, worker count, queue and scheduler
 
 storage/            what the application writes while it runs: logs, the SQLite file. Never committed.
 
@@ -109,7 +106,7 @@ return App::configure(__DIR__)
 | Do work outside the request | `php cua queue:install`, `php cua migrate`; push with `$queue->push(Job::class, id: 7)` and run `php cua queue:work`; a worker may start before the HTTP response is sent |
 | Run something by the clock | Declare the task in `AppProvider`, and keep `php cua schedule:work` running |
 | React to something that happened | `listen()` in `AppProvider`, and `dispatch()` an event object |
-| Take large uploads | Raise `max_body` and `body_timeout` in `config/server.php` |
+| Take large uploads | Add a larger `max_body` and `body_timeout` to `config/server.php` |
 | Check the server is up | `GET /up` |
 | See all commands | `php cua` |
 | Run the tests | `composer test` |
@@ -174,10 +171,10 @@ Route::get('/me', [UserController::class, 'me'])->middleware(TokenAuth::class); 
 
 ## The database
 
-It works out of the box with SQLite, in `storage/database.sqlite`; set `DB_DSN` in `.env` for MySQL. `php cua migrate` creates the tables, starting with the `users` table in `database/migrations/`.
+It works out of the box with SQLite, in `storage/database.sqlite`; set `DB_DSN` in `.env` for MySQL. `php cua make:migration create_users_table` writes your first migration in `database/migrations/`, and `php cua migrate` runs it.
 
 ~~~php
-// A migration: database/migrations/2026_10_06_000000_create_users_table.php
+// database/migrations/…_create_users_table.php, with its columns filled in
 $schema->create('users', function (Table $table) {
     $table->id();
     $table->string('name');

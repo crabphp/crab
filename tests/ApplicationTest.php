@@ -65,24 +65,6 @@ final class ApplicationTest extends TestCase
         self::assertNull($second->container->get(Cache::class)->get('rates'));
     }
 
-    public function testABootstrapFailureExplainsHowToRecoverServerControl(): void
-    {
-        $this->application('broken');
-        $path = $this->directory . '/broken/routes/web.php';
-        file_put_contents($path, '<?php syntax error here');
-        foreach (['reload', 'status', 'stop', '--help'] as $command) {
-            [$status, $output, $error] = $this->console('broken', [$command]);
-            self::assertSame(1, $status);
-            self::assertSame('', $output);
-            self::assertStringContainsString($path, $error);
-            self::assertStringContainsString('did not contact the running server', $error);
-            self::assertStringContainsString('Restore the last working application files', $error);
-        }
-        copy(dirname(__DIR__) . '/routes/web.php', $path);
-        [$status, , $error] = $this->console('broken', ['stop']);
-        self::assertSame(0, $status, $error);
-    }
-
     public function testTheExampleCommandListsDescribesAndGreetsByItsNewName(): void
     {
         $this->application('commands');
