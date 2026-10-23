@@ -31,7 +31,7 @@ tests/Feature/               tests that send the application requests, without a
 | --- | --- |
 | A command | `php cua make:command PruneUsers`, which writes it and registers it as `user:prune` |
 | Middleware | `php cua make:middleware RequireAdmin` |
-| A table | `php cua make:migration create_posts_table`, then `php cua migrate` |
+| A table | `php cua make:migration create_posts_table`, then `php cua migrate`; `php cua migrate:fresh` starts the database over |
 | A setting the framework has | `php cua config:publish server` writes every server setting, at its default |
 
 The database is SQLite in `storage/database.sqlite` until you set `DB_DSN` in `.env`.
