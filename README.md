@@ -7,7 +7,7 @@ A starting point for an application on the [Crab framework](../framework).
 ~~~sh
 composer install
 cp .env.example .env
-php cua serve
+php cua dev
 ~~~
 
 Open http://127.0.0.1:8080. The server restarts when you save a file. `php cua` lists every command, `php cua describe` prints the whole application for coding agents, and `composer test` runs the tests.
@@ -23,6 +23,7 @@ app/Providers/AppProvider.php  your services
 config/                      settings, read from .env; config('file.key') reads one
 storage/                     logs and the SQLite file; never committed
 tests/                       tests that send the application requests, without a server
+AGENTS.md                    the conventions, for coding agents
 ~~~
 
 ## Making things
@@ -44,7 +45,7 @@ APP_URL=https://api.example.com
 SERVER_WORKERS=4
 ~~~
 
-Then `php cua serve --daemon`, with `php cua reload` after each deploy and `php cua stop` to stop. See [Deployment](../framework/docs/deployment.md).
+Then `php cua start --daemon`, with `php cua reload` after each deploy and `php cua stop` to stop. See [Deployment](../framework/docs/deployment.md).
 
 ## The guide
 

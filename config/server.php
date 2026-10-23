@@ -8,7 +8,7 @@ return [
     // Worker processes. More than one needs PHP's pcntl and posix extensions.
     'workers' => env('SERVER_WORKERS', 1),
 
-    // Run the queue and scheduler inside `serve`. On in production.
+    // Run the queue and scheduler inside `start`. On in production.
     'with' => [
         'queue' => env('SERVER_QUEUE', false),
         'schedule' => env('SERVER_SCHEDULE', false),
