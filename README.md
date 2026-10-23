@@ -22,7 +22,7 @@ app/Actions/                 route actions as classes
 app/Providers/AppProvider.php  your services
 config/                      settings, read from .env; config('file.key') reads one
 storage/                     logs and the SQLite file; never committed
-tests/Feature/               tests that send the application requests, without a server
+tests/                       tests that send the application requests, without a server
 ~~~
 
 ## Making things
