@@ -10,185 +10,44 @@ cp .env.example .env
 php cua serve
 ~~~
 
-Then open http://127.0.0.1:8080. The server restarts whenever you save a file under `app/`, `config/` or `routes/`, or `.env`; `--no-watch` serves without that. `php cua serve --single` serves in one process, without PHP's `pcntl` and `posix` extensions.
-
-## In production
-
-Choose the production values in `.env`; use the queue and schedule switches when your application needs them, and size the HTTP worker count for the machine:
-
-~~~text
-APP_DEBUG=false
-APP_URL=https://api.example.com
-LOG_LEVEL=info
-SERVER_WORKERS=4
-SERVER_QUEUE=true
-SERVER_SCHEDULE=true
-~~~
-
-Set `APP_URL` to the public application URL used for [named links](../framework/docs/routing.md#named-routes), including links written by jobs and commands.
-
-The database queue needs its migration generated once with `php cua queue:install` and applied with `php cua migrate`. HTTP, queue and scheduler then start and reload together:
-
-~~~sh
-php cua serve --daemon       # start in the background; returns once it is up
-php cua status               # is it running?
-php cua reload               # new code, without refusing a connection
-php cua stop                 # drain requests up to server.drain seconds, then stop
-~~~
-
-Follow [A deploy, start to finish](../framework/docs/deployment.md#a-deploy-start-to-finish): install dependencies and run migrations successfully before `php cua reload`. If the new code cannot start, the running server goes on serving and `reload` fails with the reason. The server's process id is in `storage/crab.pid` and what it prints in `storage/logs/server.log`. Under Docker, run `php cua serve --no-watch` in the foreground instead and let the container be replaced.
+Open http://127.0.0.1:8080. The server restarts when you save a file. `php cua` lists every command, and `composer test` runs the tests.
 
 ## Where things are
 
 ~~~text
-app.php             describes the application: config, providers, routes
-cua                 the command line: php cua <command>
-
-routes/
-  web.php           HTTP routes
-  console.php       your own commands
-
-app/
-  Actions/         actions as classes
-  Providers/        where your services are bound
-
-config/
-  app.php           name, debug
-  cache.php         store, application-specific cache directory
-  database.php      which database, and where the migrations are
-  log.php           where and how much to log
-  server.php        address, worker count, queue and scheduler
-
-storage/            what the application writes while it runs: logs, the SQLite file. Never committed.
-
-tests/              tests that call the application without a server
-.env                settings for this machine, never committed
+app.php                      describes the application: providers, routes, middleware
+routes/web.php               HTTP routes
+routes/console.php           your commands
+app/Actions/                 route actions as classes
+app/Providers/AppProvider.php  your services
+config/                      settings, read from .env; config('file.key') reads one
+storage/                     logs and the SQLite file; never committed
+tests/Feature/               tests that send the application requests, without a server
 ~~~
 
-Everything starts in `app.php`, which describes the application one line at a time:
+## Making things
 
-~~~php
-use App\Providers\AppProvider;
-use Crab\App;
-
-return App::configure(__DIR__)
-    ->withProviders([
-        AppProvider::class,
-    ])
-    ->withRouting(
-        routes: 'routes/web.php',
-        commands: 'routes/console.php',
-        health: '/up',
-    )
-    ->create();
-~~~
-
-`__DIR__` is the application's base path: `.env` and `config/` are loaded from it, and the other paths are relative to it. `health: '/up'` makes `GET /up` answer `{"status":"up"}`, for whatever needs to know the server takes requests. The framework providers are registered by default; name only your own and your packages' providers. Add further providers or route files to the same lists; the route files declare with `Route::` and `Command::`.
-
-## Everyday tasks
-
-| To do this | Do this |
+| To add | Run |
 | --- | --- |
-| Add a page | Add a line to `routes/web.php` |
-| Handle a route in a class | Add a class to `app/Actions/` and name it in the route |
-| Add a command | Add it in `routes/console.php`, then `php cua <name>` |
-| Add middleware | `php cua make:middleware Name`, then `->middleware(Name::class)` on a route or group, or `->withMiddleware([Name::class])` in `app.php` |
-| Share a service | Bind it in `app/Providers/AppProvider.php`, then ask for it in a constructor |
-| Change a setting | Edit `.env`; add new settings to a file in `config/` and read them with `config('file.key')` |
-| Change the tables | `php cua make:migration create_posts_table`, edit the file, then `php cua migrate` |
-| Undo the last migration run | `php cua migrate:rollback` |
-| Restart on save while developing | `php cua serve` does already |
-| See what a command takes | `php cua serve --help` |
-| See all routes | `php cua route:list` |
-| Let a frontend on another origin call the API | `->withMiddleware(prepend: [new Cors(['https://app.example.com'])])` in `app.php` |
-| Call another API | Ask for `Crab\Contracts\HttpClient\Client` in an action's constructor |
-| Keep the result of slow work | Ask for `Crab\Contracts\Cache\Cache`, and `$cache->remember('key', 3600, fn () => ...)` |
-| Do work outside the request | `php cua queue:install`, `php cua migrate`; push with `$queue->push(Job::class, id: 7)` and run `php cua queue:work`; a worker may start before the HTTP response is sent |
-| Run something by the clock | Declare the task in `AppProvider`, and keep `php cua schedule:work` running |
-| React to something that happened | `listen()` in `AppProvider`, and `dispatch()` an event object |
-| Take large uploads | Add a larger `max_body` and `body_timeout` to `config/server.php` |
-| Check the server is up | `GET /up` |
-| See all commands | `php cua` |
-| Run the tests | `composer test` |
+| A command | `php cua make:command PruneUsers`, which writes it and registers it as `user:prune` |
+| Middleware | `php cua make:middleware RequireAdmin` |
+| A table | `php cua make:migration create_posts_table`, then `php cua migrate` |
+| A setting the framework has | `php cua config:publish server` writes every server setting, at its default |
 
-## A route
+The database is SQLite in `storage/database.sqlite` until you set `DB_DSN` in `.env`.
 
-~~~php
-// routes/web.php
-use App\Actions\SayHello;
-use Crab\Route;
+## In production
 
-Route::get('/', static fn (): string => "Hello from Crab\n");
-Route::get('/hello/{name}', SayHello::class);
+~~~text
+APP_DEBUG=false
+APP_URL=https://api.example.com
+SERVER_WORKERS=4
 ~~~
 
-A route retains its resolved action callable for the worker’s life, even with a transient binding; singleton services are also shared across requests. Keep request data in `handle()` parameters and local variables, never in their properties or statics.
-
-~~~php
-// app/Actions/SayHello.php
-namespace App\Actions;
-
-final readonly class SayHello
-{
-    public function handle(string $name): array
-    {
-        return ['hello' => $name];
-    }
-}
-~~~
-
-An action is a closure, a class with `handle()`, or a class and a method, `[UserController::class, 'show']`. The container makes the class, so its constructor can ask for services by type. `{name}` arrives as the parameter `$name`; declare it `int` and anything else is refused with `422`.
-
-An action returns data, which is sent as JSON, or a response when it needs to set the status or a header:
-
-~~~php
-use Crab\Http\Response;
-use Crab\Validation\Email;
-use Crab\Validation\Length;
-
-Route::get('/users', static fn (int $page = 1, ?string $search = null): array => ['page' => $page, 'search' => $search]);
-
-Route::post('/users', static function (#[Email] string $email, #[Length(min: 2)] string $name): Response {
-    return Response::created(['email' => $email, 'name' => $name]);
-});
-~~~
-
-Parameters that are not in the pattern are fields of the request, read from the JSON body, or from the query string for `GET`. They are checked before the action runs, and a request that does not fit is answered with `422` and the problems by field. Send `Accept: application/json` from API clients so errors are JSON too; without it, errors are plain text. When a route takes many fields, declare a class for them and take that instead.
-
-Routes that share a path prefix or middleware go in a group:
-
-~~~php
-use Crab\Auth\TokenAuth;
-
-Route::prefix('/admin')->middleware(RequireAdmin::class)->group(function () {
-    Route::get('/users', [AdminController::class, 'users']);     // GET /admin/users
-});
-
-Route::get('/me', [UserController::class, 'me'])->middleware(TokenAuth::class);   // on one route
-~~~
-
-`php cua make:middleware RequireAdmin` writes a middleware class in `app/Http/`. To run one around every request, add `->withMiddleware([RequireAdmin::class])` to `app.php`.
-
-## The database
-
-It works out of the box with SQLite, in `storage/database.sqlite`; set `DB_DSN` in `.env` for MySQL. `php cua make:migration create_users_table` writes your first migration in `database/migrations/`, and `php cua migrate` runs it.
-
-~~~php
-// database/migrations/…_create_users_table.php, with its columns filled in
-$schema->create('users', function (Table $table) {
-    $table->id();
-    $table->string('name');
-    $table->string('email')->unique();
-    $table->timestamps();
-});
-~~~
-
-An action class asks for `Crab\Contracts\Database\Database` in its constructor and queries with `$db->table('users')->where('email', $email)->first()`.
+Then `php cua serve --daemon`, with `php cua reload` after each deploy and `php cua stop` to stop. See [Deployment](../framework/docs/deployment.md).
 
 ## The guide
 
-Every topic has a page in the framework's `docs/` folder: routing, validation, the database, queues, scheduling, testing, deployment and the rest. Read them in a browser with `composer docs` in the framework's folder, which serves them at http://127.0.0.1:8900.
-
-## The framework for now
+Every topic has a page in the framework's `docs/` folder. `composer docs` in the framework's folder serves them at http://127.0.0.1:8900.
 
 The framework is not published yet, so `composer.json` reads it from `../framework`. Keep the two folders side by side.

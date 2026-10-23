@@ -13,4 +13,6 @@ return [
         'queue' => env('SERVER_QUEUE', false),
         'schedule' => env('SERVER_SCHEDULE', false),
     ],
+
+    // Every other setting has a default. `php cua config:publish server` writes them all, to change one.
 ];

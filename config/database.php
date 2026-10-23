@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 return [
-    // The database used when none is named. Add another under "connections" and reach it with $database->connection('name').
-    'default' => 'main',
-
+    // The first connection is used when none is named. Add another and reach it with $database->connection('name').
     'connections' => [
         'main' => [
             // "sqlite:/path/to/file.sqlite", or "mysql:host=127.0.0.1;dbname=app".

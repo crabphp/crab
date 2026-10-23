@@ -1,7 +1,4 @@
-composer.lock
 .env
 /vendor
-/node_modules
-/.idea
 .phpunit.cache/
-.DS_Store
+/composer.lock
