@@ -10,7 +10,7 @@ cp .env.example .env
 php cua serve
 ~~~
 
-Open http://127.0.0.1:8080. The server restarts when you save a file. `php cua` lists every command, and `composer test` runs the tests.
+Open http://127.0.0.1:8080. The server restarts when you save a file. `php cua` lists every command, `php cua describe` prints the whole application for coding agents, and `composer test` runs the tests.
 
 ## Where things are
 
