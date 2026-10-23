@@ -10,9 +10,6 @@ return [
             'dsn' => env('DB_DSN', 'sqlite:' . dirname(__DIR__) . '/storage/database.sqlite'),
             'username' => env('DB_USERNAME'),
             'password' => env('DB_PASSWORD'),
-
-            // Where `php cua make:migration` writes and `php cua migrate` reads.
-            'migrations' => dirname(__DIR__) . '/database/migrations',
         ],
     ],
 ];
