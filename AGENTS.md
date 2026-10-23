@@ -36,5 +36,6 @@ Make a folder when it has a file, not before. Nothing is found by convention: a 
 ## Check your work
 
 - `composer test` runs the tests. A test sends requests to the application in-process with `Crab\Testing\Api`, without a server; see `tests/ExampleTest.php`.
+- After changing `config/` or `.env`, run `php cua describe app`: it lists every setting that does not fit, with what it takes. `start` refuses to run until they do.
 - `php cua migrate:fresh` drops every table and runs the migrations again, for a clean development database.
 - `php cua dev` serves on http://127.0.0.1:8080 and restarts when a file is saved. `php cua start` is for production and does not watch.
