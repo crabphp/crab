@@ -35,7 +35,7 @@ AGENTS.md                    the conventions, for coding agents
 | A table | `php cua make:migration create_posts_table`, then `php cua migrate`; `php cua migrate:fresh` starts the database over |
 | A setting the framework has | `php cua config:publish server` writes every server setting, at its default |
 
-The database is SQLite in `storage/database.sqlite` until you set `DB_DSN` in `.env`.
+The database is SQLite in `storage/database.sqlite` until you set `DB_DRIVER=mysql` and `DB_DATABASE` (with `DB_HOST`, `DB_USERNAME` and `DB_PASSWORD`) in `.env`.
 
 ## In production
 
