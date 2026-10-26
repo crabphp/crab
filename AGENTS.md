@@ -26,7 +26,7 @@ Make a folder when it has a file, not before. Nothing is found by convention: a 
 
 ## Rules
 
-- An action's parameters are the request's data, checked against their types and attributes (`#[Email]`, `#[Length(min: 2)]`, `#[Range(min: 1)]`) before it runs; a request that does not fit gets `422`. Do not validate again inside the action.
+- An action's parameters say where each value comes from: a name in the route's pattern is that part of the path, `#[FromQuery] int $page = 1` is a field of the query string, and a class (an input class in `app/Http/`) or `#[Fields([...])] Data` is the body, which is always one object, never a parameter per field. Each is checked against its types and attributes (`#[Email]`, `#[Length(min: 2)]`, `#[Range(min: 1)]`) before the action runs; a request that does not fit gets `422`. Do not validate again inside the action, and do not read fields from `$request` that the signature could declare.
 - Services go in the action's constructor, never in `handle()`'s parameters.
 - Never keep request data in a property or a static: the worker keeps the object for the next request.
 - Return an array to answer with JSON, or a `Crab\Http\Response` to set the status or a header.
