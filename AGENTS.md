@@ -18,6 +18,8 @@ A JSON API on the Crab framework. The server is long-running: one process serves
 | Middleware, input classes | `app/Http/`; `php cua make:middleware RequireAdmin` |
 | Services, listeners, scheduled tasks | `register()` of `app/Providers/AppProvider.php` |
 | Event objects | `app/Events/` |
+| Records: a readonly class for one table's row, read with `->into(Post::class)` | `app/`, named after the row: `app/Post.php` |
+| Runs (work of many steps that survives crashes) and actors (one per key, a message at a time) | classes with `handle()` in `app/Actions/`; runs need `php cua runs:install` and `php cua migrate` once |
 | Settings | `config/`, the only place `env()` is called; read them with `config('file.key')` |
 | Tables | `php cua make:migration create_posts_table` writes one in `database/migrations/` |
 | Tests | `tests/` |
@@ -32,6 +34,9 @@ Make a folder when it has a file, not before. Nothing is found by convention: a 
 - Return an array to answer with JSON, or a `Crab\Http\Response` to set the status or a header.
 - Bind SQL values with `?` or `:name`; never put a value into the SQL text.
 - A queued job may run more than once; write it so that running twice does no harm.
+- An action that returns a generator streams server-sent events, and its status is sent before the first `yield`: check what can fail before then, and pass `$request->cancellation()` to what it waits on.
+- A run is run again from the top each time it resumes: anything slow, random or outside the process (a query, an API call, the time) goes in `$run->step()`, each step with a unique name.
+- An actor keeps its memory in `handle()`'s variables, never in properties: the object is shared between keys. Its memory ends when it goes idle; keep what must last in the database.
 
 ## Check your work
 
