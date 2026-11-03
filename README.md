@@ -15,11 +15,11 @@ Open http://127.0.0.1:8080. The server restarts when you save a file. `php cua` 
 ## Where things are
 
 ~~~text
-app.php                      describes the application: providers, routes, middleware
+app.php                      describes the application: plugins, routes, middleware
 routes/web.php               HTTP routes
 routes/console.php           your commands
 app/Actions/                 route actions as classes
-app/Providers/AppProvider.php  your services
+app/Plugins/AppPlugin.php  your services
 config/                      settings, read from .env; config('file.key') reads one
 storage/                     logs and the SQLite file; never committed
 tests/                       tests that send the application requests, without a server

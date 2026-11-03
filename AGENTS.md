@@ -16,7 +16,7 @@ A JSON API on the Crab framework. The server is long-running: one process serves
 | Commands | `app/Console/`, written with `php cua make:command PruneUsers`, which registers it in `routes/console.php` |
 | Code a route, job, listener or scheduled task runs | a class with `handle()` in `app/Actions/` |
 | Middleware, input classes | `app/Http/`; `php cua make:middleware RequireAdmin` |
-| Services, listeners, scheduled tasks | `register()` of `app/Providers/AppProvider.php` |
+| Services, listeners, scheduled tasks | `register()` of `app/Plugins/AppPlugin.php` |
 | Event objects | `app/Events/` |
 | Records: a readonly class for one table's row, read with `->into(Post::class)` | `app/`, named after the row: `app/Post.php` |
 | Runs (work of many steps that survives crashes) and actors (one per key, a message at a time) | classes with `handle()` in `app/Actions/`; runs need `php cua runs:install` and `php cua migrate` once |
@@ -24,7 +24,7 @@ A JSON API on the Crab framework. The server is long-running: one process serves
 | Tables | `php cua make:migration create_posts_table` writes one in `database/migrations/` |
 | Tests | `tests/` |
 
-Make a folder when it has a file, not before. Nothing is found by convention: a provider is named in `app.php`, a command in `routes/console.php`.
+Make a folder when it has a file, not before. Nothing is found by convention: a plugin is named in `app.php`, a command in `routes/console.php`.
 
 ## Rules
 
