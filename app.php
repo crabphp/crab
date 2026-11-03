@@ -2,15 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Plugins\AppPlugin;
+use App\Setup;
 use Crab\App;
 
 // Describes the application. `php cua` runs it and the tests load it.
-// The .env file, config folder and framework plugins are loaded by default.
+// The .env file, config folder and core plugins are loaded by default; list optional ones, such as QueuePlugin, in withPlugins().
 
 return App::configure(__DIR__)
-    ->withPlugins([
-        AppPlugin::class,
-    ])
+    ->withSetup(Setup::class)
     ->withRouting(routes: 'routes/web.php', commands: 'routes/console.php', health: '/up')
     ->create();

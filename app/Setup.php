@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Plugins;
+namespace App;
 
 use Crab\Contracts\Container\Container;
 use Crab\Contracts\Plugin;
@@ -10,7 +10,7 @@ use Crab\Contracts\Plugin;
 /**
  * Where the application's own services are bound.
  */
-final class AppPlugin implements Plugin
+final class Setup implements Plugin
 {
     public function register(Container $container): void
     {

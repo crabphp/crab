@@ -19,7 +19,7 @@ app.php                      describes the application: plugins, routes, middlew
 routes/web.php               HTTP routes
 routes/console.php           your commands
 app/Actions/                 route actions as classes
-app/Plugins/AppPlugin.php  your services
+app/Setup.php                your services
 config/                      settings, read from .env; config('file.key') reads one
 storage/                     logs and the SQLite file; never committed
 tests/                       tests that send the application requests, without a server
