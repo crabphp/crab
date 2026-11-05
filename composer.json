@@ -2,7 +2,6 @@
     "name": "crabphp/crab",
     "description": "A starting point for an application on the Crab framework",
     "type": "project",
-    "license": "MIT",
     "require": {
         "php": "^8.4",
         "crabphp/framework": "^0.6"
