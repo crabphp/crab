@@ -6,7 +6,7 @@ A JSON API on the Crab framework. The server is long-running: one process serves
 
 - `php cua describe` prints the whole application: every route with what it takes, the middleware, commands, scheduled tasks, listeners, servers, databases and settings. Read it before reading files.
 - `php cua` lists the commands; `php cua <command> --help` explains one.
-- The framework's guide is in `../framework/docs/`, one page per topic.
+- The framework's guide is in `vendor/crabphp/framework/docs/`, one page per topic.
 
 ## Where things go
 

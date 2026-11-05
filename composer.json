@@ -2,9 +2,10 @@
     "name": "crabphp/crab",
     "description": "A starting point for an application on the Crab framework",
     "type": "project",
+    "license": "MIT",
     "require": {
         "php": "^8.4",
-        "crabphp/framework": "@dev"
+        "crabphp/framework": "^0.6"
     },
     "require-dev": {
         "phpunit/phpunit": "^13.4"
@@ -20,17 +21,10 @@
         }
     },
     "scripts": {
-        "test": "@php vendor/bin/phpunit"
+        "test": "@php vendor/bin/phpunit",
+        "post-create-project-cmd": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ]
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../framework",
-            "options": {
-                "symlink": true
-            }
-        }
-    ],
-    "minimum-stability": "dev",
     "prefer-stable": true
 }

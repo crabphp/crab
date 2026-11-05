@@ -1,14 +1,16 @@
 # Crab application
 
-A starting point for an application on the [Crab framework](../framework).
+A starting point for an application on the [Crab framework](https://github.com/crabphp/framework).
 
 ## Start
 
 ~~~sh
-composer install
-cp .env.example .env
+composer create-project crabphp/crab shop
+cd shop
 php cua dev
 ~~~
+
+`create-project` copies `.env.example` to `.env`. From a clone of this repository instead, run `composer install` and `cp .env.example .env` before `php cua dev`.
 
 Open http://127.0.0.1:8080. The server restarts when you save a file. `php cua` lists every command, `php cua describe` prints the whole application for coding agents, and `composer test` runs the tests.
 
@@ -45,10 +47,8 @@ APP_URL=https://api.example.com
 SERVER_WORKERS=4
 ~~~
 
-Then `php cua start --daemon`, with `php cua reload` after each deploy and `php cua stop` to stop. See [Deployment](../framework/docs/deployment.md).
+Then `php cua start --daemon`, with `php cua reload` after each deploy and `php cua stop` to stop. See [Deployment](https://github.com/crabphp/framework/blob/main/docs/deployment.md).
 
 ## The guide
 
-Every topic has a page in the framework's `docs/` folder. `composer docs` in the framework's folder serves them at http://127.0.0.1:8900.
-
-The framework is not published yet, so `composer.json` reads it from `../framework`. Keep the two folders side by side.
+Every topic has a page in [the framework's guide](https://github.com/crabphp/framework/blob/main/docs/documentation.md), which comes with it too, in `vendor/crabphp/framework/docs/`.
