@@ -12,9 +12,25 @@ php cua dev
 
 `create-project` copies `.env.example` to `.env`. From a clone of this repository instead, run `composer install` and `cp .env.example .env` before `php cua dev`.
 
-On Windows, run these inside WSL 2, not PowerShell: the server needs Linux or macOS. See [Developing on Windows](https://github.com/crabphp/framework/blob/main/docs/installation.md#developing-on-windows).
-
 Open http://127.0.0.1:8080. The server restarts when you save a file. `php cua` lists every command, `php cua describe` prints the whole application for coding agents, and `composer test` runs the tests.
+
+It needs PHP 8.4 with `mbstring`, `pdo_sqlite`, `pcntl` and `posix`, and `dom` and `xmlwriter` for PHPUnit, which runs the tests.
+
+## On Windows
+
+Develop inside WSL 2, not in PowerShell or the Command Prompt: the server uses PHP's `pcntl` and `posix` extensions, which PHP for Windows does not have. In PowerShell opened as administrator, run `wsl --install` and restart Windows. Then, in the Ubuntu terminal it installs:
+
+~~~sh
+sudo apt update
+sudo apt install -y software-properties-common
+sudo add-apt-repository -y ppa:ondrej/php
+sudo apt update
+sudo apt install -y php8.4-cli php8.4-mbstring php8.4-xml php8.4-sqlite3 unzip
+~~~
+
+Install Composer from [getcomposer.org/download](https://getcomposer.org/download/) and move it into place with `sudo mv composer.phar /usr/local/bin/composer`. Then run the commands under [Start](#start) from your Linux home folder (`cd ~`), not from `/mnt/c`, and open http://localhost:8080 in your browser on Windows.
+
+[Developing on Windows](https://github.com/crabphp/framework/blob/main/docs/installation.md#developing-on-windows) in the framework's guide explains each step.
 
 ## Where things are
 
