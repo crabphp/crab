@@ -14,7 +14,7 @@ php cua dev
 
 Open http://127.0.0.1:8080. The server restarts when you save a file. `php cua` lists every command, `php cua describe` prints the whole application for coding agents, and `composer test` runs the tests.
 
-It needs PHP 8.4 with `mbstring`, `pdo_sqlite`, `pcntl` and `posix`, and `dom` and `xmlwriter` for PHPUnit, which runs the tests.
+It needs PHP 8.4 with `mbstring`, `pdo_sqlite`, `pcntl` and `posix`. Development also needs `dom` and `xmlwriter`, for PHPUnit, which runs the tests; `create-project` checks for them even with `--no-dev`. A production install, `composer install --no-dev`, does not.
 
 ## On Windows
 
