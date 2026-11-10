@@ -12,6 +12,8 @@ php cua dev
 
 `create-project` copies `.env.example` to `.env`. From a clone of this repository instead, run `composer install` and `cp .env.example .env` before `php cua dev`.
 
+On Windows, run these inside WSL 2, not PowerShell: the server needs Linux or macOS. See [Developing on Windows](https://github.com/crabphp/framework/blob/main/docs/installation.md#developing-on-windows).
+
 Open http://127.0.0.1:8080. The server restarts when you save a file. `php cua` lists every command, `php cua describe` prints the whole application for coding agents, and `composer test` runs the tests.
 
 ## Where things are
