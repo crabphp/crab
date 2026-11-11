@@ -10,4 +10,7 @@ return [
 
     // Where the application is reached; the start of every URL Urls writes for a named route.
     'url' => env('APP_URL', 'http://127.0.0.1:8080'),
+
+    // The time zone every date is made, stored and read in. Keep it in UTC; show a person their own time.
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
 ];
