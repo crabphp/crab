@@ -33,6 +33,7 @@ Make a folder when it has a file, not before. Nothing is found by convention: a 
 - Never keep request data in a property or a static: the worker keeps the object for the next request.
 - Return an array to answer with JSON, or a `Crab\Http\Response` to set the status or a header.
 - Bind SQL values with `?` or `:name`; never put a value into the SQL text.
+- `APP_KEY` in `.env` is the application's secret, read as `config('app.key')`; `php cua key:generate` writes one. Never commit `.env`, and never replace a key in use without `--force`: it ends every cookie session.
 - A queued job may run more than once; write it so that running twice does no harm.
 - An action that returns a generator streams server-sent events, and its status is sent before the first `yield`: check what can fail before then, and pass `$request->cancellation()` to what it waits on.
 - A run is run again from the top each time it resumes: anything slow, random or outside the process (a query, an API call, the time) goes in `$run->step()`, each step with a unique name.

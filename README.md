@@ -10,7 +10,7 @@ cd shop
 php cua dev
 ~~~
 
-`create-project` copies `.env.example` to `.env`. From a clone of this repository instead, run `composer install` and `cp .env.example .env` before `php cua dev`.
+`create-project` copies `.env.example` to `.env` and writes a new secret, `APP_KEY`, into it with `php cua key:generate`. From a clone of this repository instead, run `composer install`, `cp .env.example .env` and `php cua key:generate` before `php cua dev`.
 
 Open http://127.0.0.1:8080. The server restarts when you save a file. `php cua` lists every command, `php cua describe` prints the whole application for coding agents, and `composer test` runs the tests.
 

@@ -5,6 +5,10 @@ declare(strict_types=1);
 return [
     'name' => env('APP_NAME', 'Crab'),
 
+    // The secret what the application signs is signed with, such as cookie sessions.
+    // php cua key:generate writes APP_KEY into .env; give each machine its own and never commit it.
+    'key' => env('APP_KEY'),
+
     // Show the details of a failure to the client. Never in production.
     'debug' => env('APP_DEBUG', false),
 
